@@ -9,7 +9,7 @@ on:
     # prevent execution when the workflow itself is modified from a fork
     types:
       - labeled
-      - synchronize
+      #- synchronize
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
