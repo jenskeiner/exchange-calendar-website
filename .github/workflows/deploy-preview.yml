@@ -7,9 +7,9 @@ on:
   pull_request_target:
     # enable runs for this workflow when labeled as safe only
     # prevent execution when the workflow itself is modified from a fork
-    #types:
-    #- labeled
-    #- synchronize
+    types:
+      - labeled
+      #- synchronize
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
