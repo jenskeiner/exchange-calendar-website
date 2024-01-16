@@ -19,6 +19,7 @@ jobs:
   deploy-preview:
     name: Build & Deploy
     runs-on: ubuntu-latest
+    # foo
     #if: |
     #  (github.event_name == 'pull_request_target' && contains(github.event.labels.*.name, 'safe'))
     #  || (github.event_name == 'push' && github.event.repository.full_name == github.repository)
@@ -30,10 +31,11 @@ jobs:
 
       - name: Print environment variables
         run: |
-          echo Condition 1: ${{ (github.event_name == 'pull_request_target' && contains(github.event.labels.*.name, 'safe')) }}
-          echo Condition 2: ${{ (github.event_name == 'push' && github.event.repository.full_name == github.repository) }}
+          echo "Condition 1: ${{ (github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'safe')) }}"
+          echo "Condition 2: ${{ (github.event_name == 'push' && github.event.repository.full_name == github.repository) }}"
           echo "Event name: ${{ github.event_name }}"
           echo "Labels: ${{ github.event.pull_request.labels }}"
+          echo "Safe label present: ${{ contains(github.event.pull_request.labels.*.name, 'safe') }}"
           echo "Push repository name: ${{ github.event.repository.full_name }}"
           echo "Repository: ${{ github.repository }}"
           cat $GITHUB_EVENT_PATH
