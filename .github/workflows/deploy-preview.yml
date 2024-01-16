@@ -19,7 +19,6 @@ jobs:
   deploy-preview:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    # foo
     #if: |
     #  (github.event_name == 'pull_request_target' && contains(github.event.labels.*.name, 'safe'))
     #  || (github.event_name == 'push' && github.event.repository.full_name == github.repository)
