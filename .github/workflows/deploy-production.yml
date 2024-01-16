@@ -1,0 +1,94 @@
+name: "Deploy Production"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy-preview:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+          bundler-cache: true
+
+      - name: Build Assets
+        run: npm ci && npm run prod
+
+      - name: Fetch Documentation
+        run: |
+          python -m pip install poetry
+          poetry install --only main
+          poetry run python bin/website build
+
+      - name: Start Deployment
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: Production
+
+      - name: Install Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: "0.121.1"
+          extended: true
+
+      - name: Build
+        run: hugo -v --minify
+
+      #- name: Build search index
+      #  continue-on-error: true
+      #  env:
+      #    ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+      #    ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+      #    ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
+      #    ALGOLIA_INDEX_FILE: "algolia.json"
+      #  run: |
+      #    bundle exec bin/build_index.rb
+      #    npm run algolia
+
+      - name: Deploy
+        uses: amondnet/vercel-action@v25
+        id: vercel-action
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-comment: false
+          vercel-args: "--prod"
+          working-directory: public
+
+      - name: Update Deployment Status
+        uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env_url: ${{ steps.vercel-action.outputs.preview-url }}
+          env: ${{ steps.deployment.outputs.env }}
