@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "Event name: ${{ github.event_name }}"
           echo "Labels: ${{ github.event.pull_request.labels }}"
-          echo "Push repository name: ${{ github.event.push.repository.full_name }}"
+          echo "Push repository name: ${{ github.event.repository.full_name }}"
           echo "Repository: ${{ github.repository }}"
           cat $GITHUB_EVENT_PATH
 
