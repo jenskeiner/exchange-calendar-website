@@ -1,5 +1,5 @@
-ifdef POETRY_REPO
-WEBSITE_ARGS = --local="$(POETRY_REPO)" --editable
+ifdef EXCHANGE_CALENDARS_EXTENSIONS_REPO
+WEBSITE_ARGS = --local-extensions="$(EXCHANGE_CALENDARS_EXTENSIONS_REPO)" --editable-extensions
 endif
 
 .PHONY: help
